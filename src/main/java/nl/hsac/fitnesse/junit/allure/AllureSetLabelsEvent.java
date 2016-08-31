@@ -7,10 +7,8 @@ import ru.yandex.qatools.allure.model.TestCaseResult;
 import java.util.List;
 
 /**
- * Created by Tom on 4-7-2016.
- * Custom event to explicitly add labels to allure result xml from the run listener
+ * Custom event to explicitly add labels to allure result xml from the run listener.
  */
-
 public class AllureSetLabelsEvent implements TestCaseEvent {
 
     private List<Label> labels;
