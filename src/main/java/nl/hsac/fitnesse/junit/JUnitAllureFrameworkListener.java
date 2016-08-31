@@ -1,7 +1,3 @@
-//
-// JUnit listener for Allure Framework. Based on default ru.yandex.qatools.allure.junit.AllureRunListener
-//
-
 package nl.hsac.fitnesse.junit;
 
 import fitnesse.junit.FitNesseRunner;
@@ -37,6 +33,9 @@ import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * JUnit listener for Allure Framework. Based on default ru.yandex.qatools.allure.junit.AllureRunListener
+ */
 public class JUnitAllureFrameworkListener extends RunListener {
     private Allure lifecycle;
     private static final String FITNESSE_RESULTS_PATH = "target/fitnesse-results/";
@@ -54,7 +53,7 @@ public class JUnitAllureFrameworkListener extends RunListener {
     private void testSuiteStarted(Description description) {
         String uid = this.generateSuiteUid(description.getDisplayName());
         String suiteName = System.getProperty("fitnesseSuiteToRun");
-        if(null == suiteName) {
+        if (null == suiteName) {
             suiteName = description.getAnnotation(FitNesseRunner.Suite.class).value();
         }
 
@@ -68,7 +67,7 @@ public class JUnitAllureFrameworkListener extends RunListener {
 
     public void testStarted(Description description) {
         FitNessePageAnnotation pageAnn = description.getAnnotation(FitNessePageAnnotation.class);
-        if(pageAnn != null) {
+        if (pageAnn != null) {
             WikiPage page = pageAnn.getWikiPage();
             String suiteName = page.getParent().getName();
 
@@ -85,7 +84,7 @@ public class JUnitAllureFrameworkListener extends RunListener {
     }
 
     public void testFailure(Failure failure) {
-        if(failure.getDescription().isTest()) {
+        if (failure.getDescription().isTest()) {
             Throwable exception = failure.getException();
             List<Pattern> patterns = new ArrayList<>();
             patterns.add(SCREENSHOT_PATTERN);
@@ -126,7 +125,7 @@ public class JUnitAllureFrameworkListener extends RunListener {
 
     private String generateSuiteUid(String suiteName) {
         String uid = UUID.randomUUID().toString();
-        synchronized(this.getSuites()) {
+        synchronized (this.getSuites()) {
             this.getSuites().put(suiteName, uid);
             return uid;
         }
@@ -135,7 +134,7 @@ public class JUnitAllureFrameworkListener extends RunListener {
 
     private String getSuiteUid(Description description) {
         String suiteName = description.getClassName();
-        if(!this.getSuites().containsKey(suiteName)) {
+        if (!this.getSuites().containsKey(suiteName)) {
             Description suiteDescription = Description.createSuiteDescription(description.getTestClass());
             this.testSuiteStarted(suiteDescription);
         }
@@ -145,7 +144,7 @@ public class JUnitAllureFrameworkListener extends RunListener {
 
     private void startFakeTestCase(Description description) {
         String uid = this.getSuiteUid(description);
-        String name = description.isTest()?description.getMethodName():description.getClassName();
+        String name = description.isTest() ? description.getMethodName() : description.getClassName();
         TestCaseStartedEvent event = new TestCaseStartedEvent(uid, name);
         AnnotationManager am = new AnnotationManager(description.getAnnotations());
         am.update(event);
@@ -177,22 +176,22 @@ public class JUnitAllureFrameworkListener extends RunListener {
         this.testFinished(description);
     }
 
-    private void processAttachments(Throwable ex, List<Pattern> patterns){
+    private void processAttachments(Throwable ex, List<Pattern> patterns) {
 
-        for(Pattern pattern : patterns){
+        for (Pattern pattern : patterns) {
             Matcher patternMatcher = pattern.matcher(ex.getMessage());
-            if(patternMatcher.find()) {
+            if (patternMatcher.find()) {
                 String filePath = FITNESSE_RESULTS_PATH + patternMatcher.group(1);
                 String attName;
                 String type;
                 String ext = FilenameUtils.getExtension(Paths.get(filePath).toString());
-                if(ext.equalsIgnoreCase(SCREENSHOT_EXT)){
+                if (ext.equalsIgnoreCase(SCREENSHOT_EXT)) {
                     attName = "Page Screenshot";
                     type = "image/png";
-                } else if(ext.equalsIgnoreCase(PAGESOURCE_EXT)){
+                } else if (ext.equalsIgnoreCase(PAGESOURCE_EXT)) {
                     attName = "Page Source";
                     type = "text/html";
-                } else{
+                } else {
                     attName = "Attachment";
                     type = "text/html";
                 }
@@ -201,7 +200,7 @@ public class JUnitAllureFrameworkListener extends RunListener {
         }
     }
 
-    private void makeAttachment(byte[] file, String attName, String type){
+    private void makeAttachment(byte[] file, String attName, String type) {
         MakeAttachmentEvent ev = new MakeAttachmentEvent(file, attName, type);
         this.getLifecycle().fire(ev);
     }
@@ -218,13 +217,13 @@ public class JUnitAllureFrameworkListener extends RunListener {
         return data;
     }
 
-    private String fitnesseResult(String test){
+    private String fitnesseResult(String test) {
         String style = "width: 99%; height: 99%; overflow: auto; border: 0px;";
         String iFrame = String.format("<iframe src=\"../fitnesseResults/%s.html\" style=\"%s\">", test, style);
         return String.format("<html><head><title>FitNesse Report</title></head><body>%s</body>", iFrame);
     }
 
-    private void createStories(String suite, String tagInfo){
+    private void createStories(String suite, String tagInfo) {
         List<Label> labels = new ArrayList<>();
 
         Label featureLabel = new Label();
@@ -250,8 +249,7 @@ public class JUnitAllureFrameworkListener extends RunListener {
             hostLabel.setName("host");
             hostLabel.setValue(hostName);
             labels.add(hostLabel);
-        }
-        catch(Exception ex) {
+        } catch (Exception ex) {
             System.err.println("Cannot determine hostname: " + ex);
         }
         AllureSetLabelsEvent event = new AllureSetLabelsEvent(labels);
