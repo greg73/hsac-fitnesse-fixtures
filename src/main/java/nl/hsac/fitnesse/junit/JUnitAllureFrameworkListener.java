@@ -4,16 +4,9 @@
 
 package nl.hsac.fitnesse.junit;
 
-import java.io.IOException;
-import java.net.InetAddress;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import fitnesse.junit.FitNesseRunner;
 import fitnesse.wiki.WikiPage;
+import nl.hsac.fitnesse.junit.allure.AllureSetLabelsEvent;
 import org.apache.commons.io.FilenameUtils;
 import org.junit.runner.Description;
 import org.junit.runner.Result;
@@ -21,10 +14,28 @@ import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunListener;
 import ru.yandex.qatools.allure.Allure;
 import ru.yandex.qatools.allure.config.AllureModelUtils;
-import ru.yandex.qatools.allure.events.*;
+import ru.yandex.qatools.allure.events.ClearStepStorageEvent;
+import ru.yandex.qatools.allure.events.MakeAttachmentEvent;
+import ru.yandex.qatools.allure.events.TestCaseFailureEvent;
+import ru.yandex.qatools.allure.events.TestCaseFinishedEvent;
+import ru.yandex.qatools.allure.events.TestCaseStartedEvent;
+import ru.yandex.qatools.allure.events.TestSuiteFinishedEvent;
+import ru.yandex.qatools.allure.events.TestSuiteStartedEvent;
 import ru.yandex.qatools.allure.model.Label;
 import ru.yandex.qatools.allure.utils.AnnotationManager;
-import nl.hsac.fitnesse.junit.allure.AllureSetLabelsEvent;
+
+import java.io.IOException;
+import java.net.InetAddress;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class JUnitAllureFrameworkListener extends RunListener {
     private Allure lifecycle;
@@ -209,7 +220,7 @@ public class JUnitAllureFrameworkListener extends RunListener {
 
     private String fitnesseResult(String test){
         String style = "width: 99%; height: 99%; overflow: auto; border: 0px;";
-        String iFrame = String.format("<iframe src=\"/fitnesseResults/%s.html\" style=\"%s\">", test, style);
+        String iFrame = String.format("<iframe src=\"../fitnesseResults/%s.html\" style=\"%s\">", test, style);
         return String.format("<html><head><title>FitNesse Report</title></head><body>%s</body>", iFrame);
     }
 
