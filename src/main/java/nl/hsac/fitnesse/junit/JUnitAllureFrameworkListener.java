@@ -22,6 +22,7 @@ import ru.yandex.qatools.allure.utils.AnnotationManager;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -37,17 +38,27 @@ import java.util.regex.Pattern;
  * JUnit listener for Allure Framework. Based on default ru.yandex.qatools.allure.junit.AllureRunListener
  */
 public class JUnitAllureFrameworkListener extends RunListener {
-    private Allure lifecycle;
     private static final String FITNESSE_RESULTS_PATH = "target/fitnesse-results/";
     private static final String SCREENSHOT_EXT = "png";
     private static final String PAGESOURCE_EXT = "html";
     private static final Pattern SCREENSHOT_PATTERN = Pattern.compile("href=\"([^\"]*." + SCREENSHOT_EXT + ")\"");
     private static final Pattern PAGESOURCE_PATTERN = Pattern.compile("href=\"([^\"]*." + PAGESOURCE_EXT + ")\"");
     private final HashMap suites;
+    private final Label hostLabel;
+    private Allure lifecycle;
 
     public JUnitAllureFrameworkListener() {
         this.lifecycle = Allure.LIFECYCLE;
         this.suites = new HashMap();
+        String hostName = "unknown";
+        try {
+            hostName = InetAddress.getLocalHost().getHostName();
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
+        hostLabel = new Label();
+        hostLabel.setName("host");
+        hostLabel.setValue(hostName);
     }
 
     private void testSuiteStarted(Description description) {
@@ -242,16 +253,8 @@ public class JUnitAllureFrameworkListener extends RunListener {
         }
 
         //For some reason, the host label no longer gets set when applying story labels..
-        String hostName;
-        try {
-            hostName = InetAddress.getLocalHost().getHostName();
-            Label hostLabel = new Label();
-            hostLabel.setName("host");
-            hostLabel.setValue(hostName);
-            labels.add(hostLabel);
-        } catch (Exception ex) {
-            System.err.println("Cannot determine hostname: " + ex);
-        }
+        labels.add(hostLabel);
+
         AllureSetLabelsEvent event = new AllureSetLabelsEvent(labels);
         this.getLifecycle().fire(event);
     }
