@@ -38,7 +38,6 @@ import java.util.regex.Pattern;
  * JUnit listener for Allure Framework. Based on default ru.yandex.qatools.allure.junit.AllureRunListener
  */
 public class JUnitAllureFrameworkListener extends RunListener {
-    private static final String FITNESSE_RESULTS_PATH = "target/fitnesse-results/";
     private static final String SCREENSHOT_EXT = "png";
     private static final String PAGESOURCE_EXT = "html";
     private static final Pattern SCREENSHOT_PATTERN = Pattern.compile("href=\"([^\"]*." + SCREENSHOT_EXT + ")\"");
@@ -63,7 +62,7 @@ public class JUnitAllureFrameworkListener extends RunListener {
 
     private void testSuiteStarted(Description description) {
         String uid = this.generateSuiteUid(description.getDisplayName());
-        String suiteName = System.getProperty("fitnesseSuiteToRun");
+        String suiteName = System.getProperty(HsacFitNesseRunner.SUITE_OVERRIDE_VARIABLE_NAME);
         if (null == suiteName) {
             suiteName = description.getAnnotation(FitNesseRunner.Suite.class).value();
         }
@@ -192,7 +191,7 @@ public class JUnitAllureFrameworkListener extends RunListener {
         for (Pattern pattern : patterns) {
             Matcher patternMatcher = pattern.matcher(ex.getMessage());
             if (patternMatcher.find()) {
-                String filePath = FITNESSE_RESULTS_PATH + patternMatcher.group(1);
+                String filePath = HsacFitNesseRunner.FITNESSE_RESULTS_PATH + "/" + patternMatcher.group(1);
                 String attName;
                 String type;
                 String ext = FilenameUtils.getExtension(Paths.get(filePath).toString());
