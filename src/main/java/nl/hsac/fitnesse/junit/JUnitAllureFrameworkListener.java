@@ -44,10 +44,10 @@ public class JUnitAllureFrameworkListener extends RunListener {
     private static final Pattern PAGESOURCE_PATTERN = Pattern.compile("href=\"([^\"]*." + PAGESOURCE_EXT + ")\"");
     private final HashMap suites;
     private final Label hostLabel;
-    private Allure lifecycle;
+    private final Allure allure;
 
     public JUnitAllureFrameworkListener() {
-        this.lifecycle = Allure.LIFECYCLE;
+        this.allure = Allure.LIFECYCLE;
         this.suites = new HashMap();
         String hostName = "unknown";
         try {
@@ -71,7 +71,7 @@ public class JUnitAllureFrameworkListener extends RunListener {
         AnnotationManager am = new AnnotationManager(description.getAnnotations());
         am.update(event);
         event.withLabels(AllureModelUtils.createTestFrameworkLabel("FitNesse"));
-        this.getLifecycle().fire(event);
+        getAllure().fire(event);
     }
 
 
@@ -86,7 +86,7 @@ public class JUnitAllureFrameworkListener extends RunListener {
             am.update(event);
 
             this.fireClearStepStorage();
-            this.getLifecycle().fire(event);
+            getAllure().fire(event);
 
             String tagInfo = page.getData().getProperties().get("Suites");
             createStories(suiteName, tagInfo);
@@ -118,11 +118,11 @@ public class JUnitAllureFrameworkListener extends RunListener {
     public void testFinished(Description description) {
         String methodName = description.getMethodName();
         makeAttachment(fitnesseResult(methodName).getBytes(), "FitNesse Result page", "text/html");
-        this.getLifecycle().fire(new TestCaseFinishedEvent());
+        getAllure().fire(new TestCaseFinishedEvent());
     }
 
     private void testSuiteFinished(String uid) {
-        this.getLifecycle().fire(new TestSuiteFinishedEvent(uid));
+        getAllure().fire(new TestSuiteFinishedEvent(uid));
     }
 
     public void testRunFinished(Result result) {
@@ -159,23 +159,23 @@ public class JUnitAllureFrameworkListener extends RunListener {
         AnnotationManager am = new AnnotationManager(description.getAnnotations());
         am.update(event);
         this.fireClearStepStorage();
-        this.getLifecycle().fire(event);
+        getAllure().fire(event);
     }
 
     private void finishFakeTestCase() {
-        this.getLifecycle().fire(new TestCaseFinishedEvent());
+        getAllure().fire(new TestCaseFinishedEvent());
     }
 
     private void fireTestCaseFailure(Throwable throwable) {
-        this.getLifecycle().fire((new TestCaseFailureEvent()).withThrowable(throwable));
+        getAllure().fire((new TestCaseFailureEvent()).withThrowable(throwable));
     }
 
     private void fireClearStepStorage() {
-        this.getLifecycle().fire(new ClearStepStorageEvent());
+        getAllure().fire(new ClearStepStorageEvent());
     }
 
-    private Allure getLifecycle() {
-        return this.lifecycle;
+    private Allure getAllure() {
+        return this.allure;
     }
 
     public Map<String, String> getSuites() {
@@ -212,7 +212,7 @@ public class JUnitAllureFrameworkListener extends RunListener {
 
     private void makeAttachment(byte[] file, String attName, String type) {
         MakeAttachmentEvent ev = new MakeAttachmentEvent(file, attName, type);
-        this.getLifecycle().fire(ev);
+        getAllure().fire(ev);
     }
 
     private byte[] fileToAttach(String filePath) {
@@ -255,6 +255,6 @@ public class JUnitAllureFrameworkListener extends RunListener {
         labels.add(hostLabel);
 
         AllureSetLabelsEvent event = new AllureSetLabelsEvent(labels);
-        this.getLifecycle().fire(event);
+        getAllure().fire(event);
     }
 }
