@@ -3,13 +3,12 @@ package nl.hsac.fitnesse.junit;
 import fitnesse.ContextConfigurator;
 import fitnesse.FitNesseContext;
 import fitnesse.components.PluginsClassLoader;
-import fitnesse.junit.FitNesseRunner;
-import fitnesse.testrunner.MultipleTestsRunner;
 import fitnesse.wiki.WikiPage;
 import nl.hsac.fitnesse.fixture.Environment;
 import nl.hsac.fitnesse.fixture.slim.web.SeleniumDriverSetup;
 import nl.hsac.fitnesse.fixture.util.FileUtil;
 import nl.hsac.fitnesse.fixture.util.selenium.SeleniumHelper;
+import nl.hsac.fitnesse.junit.patch948.PatchedFitNesseRunner;
 import nl.hsac.fitnesse.junit.selenium.LocalSeleniumDriverClassFactoryFactory;
 import nl.hsac.fitnesse.junit.selenium.LocalSeleniumDriverFactoryFactory;
 import nl.hsac.fitnesse.junit.selenium.SeleniumDriverFactoryFactory;
@@ -17,7 +16,6 @@ import nl.hsac.fitnesse.junit.selenium.SeleniumGridDriverFactoryFactory;
 import nl.hsac.fitnesse.junit.selenium.SeleniumJsonGridDriverFactoryFactory;
 import nl.hsac.fitnesse.junit.selenium.SimpleSeleniumGridDriverFactoryFactory;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.runner.Description;
 import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.model.InitializationError;
 
@@ -40,13 +38,13 @@ import java.util.List;
  *
  * The HTML generated for each page is saved in target/fitnesse-results
  */
-public class HsacFitNesseRunner extends FitNesseRunner {
+public class HsacFitNesseRunner extends PatchedFitNesseRunner {
     /** Output path for HTML results */
     public final static String FITNESSE_RESULTS_PATH = "target/fitnesse-results";
     /** Property to override suite to run */
     public final static String SUITE_OVERRIDE_VARIABLE_NAME = "fitnesseSuiteToRun";
     private final static String SELENIUM_DEFAULT_TIMEOUT_PROP = "seleniumDefaultTimeout";
-    protected final List<SeleniumDriverFactoryFactory> factoryFactories = new ArrayList<SeleniumDriverFactoryFactory>();
+    protected final List<SeleniumDriverFactoryFactory> factoryFactories = new ArrayList<>();
 
     public HsacFitNesseRunner(Class<?> suiteClass) throws InitializationError {
         super(suiteClass);
@@ -105,16 +103,10 @@ public class HsacFitNesseRunner extends FitNesseRunner {
     }
 
     @Override
-    protected Description describeChild(WikiPage child) {
-        Class<?> suiteClass = super.describeChild(child).getTestClass();
-        return DescriptionHelper.createDescription(suiteClass, child);
-    }
-
-    @Override
     protected void runPages(List<WikiPage> pages, RunNotifier notifier) {
         boolean seleniumConfigOverridden = configureSeleniumIfNeeded();
         try {
-           super.runPages(pages, notifier);
+            super.runPages(pages, notifier);
         } finally {
             if (seleniumConfigOverridden) {
                 try {
@@ -142,11 +134,6 @@ public class HsacFitNesseRunner extends FitNesseRunner {
             }
         }
 
-    }
-
-    @Override
-    protected void addTestSystemListeners(RunNotifier notifier, MultipleTestsRunner testRunner, Class<?> suiteClass) {
-        testRunner.addTestSystemListener(new RunNotifierResultsListener(notifier, suiteClass));
     }
 
     /**
