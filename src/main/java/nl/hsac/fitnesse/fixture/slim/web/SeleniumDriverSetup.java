@@ -13,6 +13,7 @@ import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.edge.EdgeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxProfile;
+import org.openqa.selenium.firefox.MarionetteDriver;
 import org.openqa.selenium.ie.InternetExplorerDriver;
 import org.openqa.selenium.phantomjs.PhantomJSDriver;
 import org.openqa.selenium.remote.DesiredCapabilities;
@@ -125,6 +126,12 @@ public class SeleniumDriverSetup extends SlimFixture {
         switch (browserName) {
             case "firefox": {
                 result = startDriver(FirefoxDriver.class.getName(), profile);
+                break;
+            }
+            case "marionette": {
+                String driverPath = getExecutable("geckodriver");
+                setPropertyValue("webdriver.gecko.driver", driverPath);
+                result = startDriver(MarionetteDriver.class.getName(), profile);
                 break;
             }
             case "safari": {
