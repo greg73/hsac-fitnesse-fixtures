@@ -397,7 +397,7 @@ public class SeleniumHelper {
      * @return whether the element is displayed and enabled.
      */
     public boolean isInteractable(WebElement element) {
-        return element != null && element.isDisplayed() && element.isEnabled();
+        return element != null && element.isDisplayed() && element.isEnabled() && isOnTop(element);
     }
 
     /**
@@ -1010,7 +1010,7 @@ public class SeleniumHelper {
         WebElement element = elements.get(0);
         WebElement firstDisplayed = null;
         WebElement firstOnTop = null;
-        if (!element.isDisplayed() || !isOnTop(element)) {
+        if (!isInteractable(element)) {
             for (int i = 1; i < elements.size(); i++) {
                 WebElement otherElement = elements.get(i);
                 if (otherElement.isDisplayed()) {
@@ -1035,7 +1035,7 @@ public class SeleniumHelper {
         return element;
     }
 
-    private boolean isOnTop(WebElement element) {
+    public boolean isOnTop(WebElement element) {
         WebElement e = (WebElement) executeJavascript(TOP_ELEMENT_AT, element);
         return element.equals(e);
     }
