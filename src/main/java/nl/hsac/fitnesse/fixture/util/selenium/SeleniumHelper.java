@@ -7,6 +7,7 @@ import org.openqa.selenium.*;
 import org.openqa.selenium.ie.InternetExplorerDriver;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.internal.Base64Encoder;
+import org.openqa.selenium.phantomjs.PhantomJSDriver;
 import org.openqa.selenium.remote.Augmenter;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.remote.ScreenshotException;
@@ -397,7 +398,13 @@ public class SeleniumHelper {
      * @return whether the element is displayed and enabled.
      */
     public boolean isInteractable(WebElement element) {
-        return element != null && element.isDisplayed() && element.isEnabled() && isOnTop(element);
+        boolean result = element != null && element.isDisplayed() && element.isEnabled();
+        if (result && !connectedToPhantom()) {
+            // checking for what's on top does not work for phantom
+            scrollTo(element);
+            result = isOnTop(element);
+        }
+        return result;
     }
 
     /**
@@ -893,6 +900,20 @@ public class SeleniumHelper {
             result = true;
         } else if (driver instanceof RemoteWebDriver) {
             result = checkRemoteBrowserName(driver, "safari");
+        }
+        return result;
+    }
+
+    /**
+     * @return true when current driver is connected to either a local or remote PhantomJs.
+     */
+    public boolean connectedToPhantom() {
+        boolean result = false;
+        WebDriver driver = driver();
+        if (driver instanceof PhantomJSDriver) {
+            result = true;
+        } else if (driver instanceof RemoteWebDriver) {
+            result = checkRemoteBrowserName(driver, "phantomjs");
         }
         return result;
     }
