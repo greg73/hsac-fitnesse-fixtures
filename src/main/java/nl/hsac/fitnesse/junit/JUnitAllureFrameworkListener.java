@@ -1,9 +1,9 @@
 package nl.hsac.fitnesse.junit;
 
+import fitnesse.junit.FitNessePageAnnotation;
 import fitnesse.junit.FitNesseRunner;
 import fitnesse.wiki.WikiPage;
 import nl.hsac.fitnesse.junit.allure.AllureSetLabelsEvent;
-import nl.hsac.fitnesse.junit.patch948.FitNessePageAnnotation;
 import org.apache.commons.io.FilenameUtils;
 import org.junit.runner.Description;
 import org.junit.runner.Result;
