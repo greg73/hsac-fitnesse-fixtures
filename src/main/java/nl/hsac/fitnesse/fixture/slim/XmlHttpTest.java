@@ -28,7 +28,11 @@ public class XmlHttpTest extends HttpTest {
 
     @Override
     protected String formatValue(String value) {
-        return getEnvironment().getHtmlForXml(value);
+        String formatted = super.formatValue(value);
+        if (value != null && value.trim().startsWith("<")) {
+            formatted = getEnvironment().getHtmlForXml(value);
+        }
+        return formatted;
     }
 
     /**
@@ -115,6 +119,27 @@ public class XmlHttpTest extends HttpTest {
         getEnvironment().setContext(getResponse());
         boolean result = super.postProcessResponse();
         return result;
+    }
+
+    public boolean repeatUntilXPathIs(final String xPath, final String expectedValue) {
+        RepeatCompletion completion;
+        if (expectedValue == null) {
+            completion = new RepeatLastCall() {
+                @Override
+                public boolean isFinished() {
+                    return xPath(xPath) == null;
+                }
+            };
+        } else {
+            completion = new RepeatLastCall() {
+                @Override
+                public boolean isFinished() {
+                    Object actual = xPath(xPath);
+                    return compareActualToExpected(expectedValue, actual);
+                }
+            };
+        }
+        return repeatUntil(completion);
     }
 
     @Override

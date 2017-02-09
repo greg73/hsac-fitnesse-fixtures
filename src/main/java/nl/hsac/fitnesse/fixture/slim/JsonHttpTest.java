@@ -24,7 +24,11 @@ public class JsonHttpTest extends HttpTest {
 
     @Override
     protected String formatValue(String value) {
-        return getEnvironment().getHtmlForJson(value);
+        String formatted = super.formatValue(value);
+        if (value != null && value.trim().startsWith("{")) {
+            formatted = getEnvironment().getHtmlForJson(value);
+        }
+        return formatted;
     }
 
     public Object jsonPath(String path) {
@@ -85,6 +89,27 @@ public class JsonHttpTest extends HttpTest {
         String jsonPath = getPathExpr(path);
         String newResponse = getPathHelper().updateJsonPathWithValue(jsonStr, jsonPath, value);
         getResponse().setResponse(newResponse);
+    }
+
+    public boolean repeatUntilJsonPathIs(final String jsonPath, final Object expectedValue) {
+        RepeatCompletion completion;
+        if (expectedValue == null) {
+            completion = new RepeatLastCall() {
+                @Override
+                public boolean isFinished() {
+                    return jsonPath(jsonPath) == null;
+                }
+            };
+        } else {
+            completion = new RepeatLastCall() {
+                @Override
+                public boolean isFinished() {
+                    Object actual = jsonPath(jsonPath);
+                    return compareActualToExpected(expectedValue, actual);
+                }
+            };
+        }
+        return repeatUntil(completion);
     }
 
     protected String getPathExpr(String path) {
